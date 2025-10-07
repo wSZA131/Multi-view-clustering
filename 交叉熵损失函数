@@ -1,0 +1,28 @@
+self.criterion = nn.CrossEntropyLoss(reduction="sum")
+
+
+reduction="sum"：指定损失的计算方式
+
+"sum"：对所有样本的损失求和
+
+"mean"：对所有样本的损失求平均（默认）
+
+"none"：不聚合，返回每个样本的损失
+
+
+使用示例：
+
+import torch
+import torch.nn as nn
+
+# 创建交叉熵损失函数
+criterion = nn.CrossEntropyLoss(reduction="sum")
+
+# 示例数据
+logits = torch.tensor([[2.0, 1.0, 0.1],  # 样本1的预测
+                       [0.5, 2.0, 0.3]]) # 样本2的预测
+labels = torch.tensor([0, 1])  # 样本1的真实标签是0，样本2的真实标签是1
+
+# 计算损失
+loss = criterion(logits, labels)
+print(loss)  # 两个样本损失的总和
