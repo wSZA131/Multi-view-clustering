@@ -1,0 +1,19 @@
+self.mask = self.mask_correlated_samples(batch_size)#负样本掩码，是一个布尔矩阵区分正样本和负样本
+
+示例代码：
+    def mask_correlated_samples(self, N):
+        mask = torch.ones((N, N))#生成一个N×N的矩阵
+        mask = mask.fill_diagonal_(0)#将对角元素设置为0，确定不是负样本对
+        for i in range(N//2):
+            mask[i, N//2 + i] = 0
+            mask[N//2 + i, i] = 0
+        mask = mask.bool()
+        return mask
+        
+矩阵样图：前指样本后指视图
+        img1_v1  img2_v1  img1_v2  img2_v2
+        ↓        ↓        ↓        ↓
+img1_v1 → sim[0,0] sim[0,1] sim[0,2] sim[0,3]
+img2_v1 → sim[1,0] sim[1,1] sim[1,2] sim[1,3]  
+img1_v2 → sim[2,0] sim[2,1] sim[2,2] sim[2,3]
+img2_v2 → sim[3,0] sim[3,1] sim[3,2] sim[3,3]
