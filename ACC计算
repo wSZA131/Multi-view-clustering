@@ -1,0 +1,33 @@
+def cluster_acc(y_true, y_pred):
+    # 计算聚类准确率（ACC）
+    # 通过匈牙利算法寻找聚类标签到真实标签的最优一一映射，然后计算匹配率
+    y_true = y_true.astype(np.int64)# 数据转为64位整型
+    assert y_pred.size == y_true.size # 断言预测和真实长度一致
+    D = max(y_pred.max(), y_true.max()) + 1 # 确定矩阵大小（类别数上界）
+    w = np.zeros((D, D), dtype=np.int64) # 初始化计数矩阵 w[class_pred, class_true]
+    for i in range(y_pred.size):
+        w[y_pred[i], y_true[i]] += 1# 统计每个预测类与真实类的交叉计数
+    u = linear_sum_assignment(w.max() - w) # 用匈牙利算法在补矩阵上求最大匹配
+    # linear_sum_assignment 返回 (row_ind, col_ind) 两个数组，表示一一对应的索引配对
+    ind = np.concatenate([u[0].reshape(u[0].shape[0], 1), u[1].reshape([u[0].shape[0], 1])], axis=1)
+    # 将两个数组拼成二维索引对数组 [[r1,c1],[r2,c2],...]
+    return sum([w[i, j] for i, j in ind]) * 1.0 / y_pred.size
+    # 统计最优匹配下正确样本数并除以总数，得到 ACC（浮点返回）
+----------------------------------------------------------------------------------------------
+1、断言检查
+assert y_pred.size == y_true.size
+作用：确保预测标签和真实标签的数量一致
+# 示例
+y_pred = np.array([0, 1, 0, 1])  # 4个预测
+y_true = np.array([0, 0, 1, 1])  # 4个真实标签
+# 如果长度不一致会报错：AssertionError
+############################
+2、确定矩阵维度
+D = max(y_pred.max(), y_true.max()) + 1
+作用：计算混淆矩阵的大小（基于最大类别编号）
+混淆矩阵：元素w[i,j]：预测为类别i但真实类别为j的样本数量
+# 示例
+y_pred = np.array([0, 1, 2, 1])  # 最大值为2
+y_true = np.array([0, 1, 1, 0])  # 最大值为1
+D = max(2, 1) + 1 = 3  # 创建3x3矩阵（类别0,1,2）
+##############################
